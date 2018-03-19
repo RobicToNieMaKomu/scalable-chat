@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+    redis:
+      image: "redis:alpine"
+      container_name: redis
+      ports:
+        - "6379:6379"
+
+    ws-adapter:
+      build: ./ws-adapter
+      environment:
+        JAR_FILE: scalable-chat-0.1.0.jar
+      expose:
+        - "8080"
+      volumes:
+        - ../target/:/app/lib/
+      depends_on:
+        - redis
+
+    nginx:
+      image: "nginx:alpine"
+      container_name: nginx
+      ports:
+        - "80:80"
+      volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf
+      links:
+        - ws-adapter
